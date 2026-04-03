@@ -112,3 +112,6 @@ data class StatusData(val status: String, val queries: Int)
 data class AnalyticsResponse(val data: List<StatusData>)
 data class DomainItem(val id: String, val active: Boolean)
 data class DomainListResponse(val data: List<DomainItem>)
+}
+}
+}
