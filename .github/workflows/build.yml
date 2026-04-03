@@ -1,0 +1,58 @@
+name: Build Android APK
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up JDK 17
+      uses: actions/setup-java@v4
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+        cache: gradle
+    
+    - name: Grant execute permission for gradlew
+      run: chmod +x gradlew
+    
+    - name: Build debug APK
+      run: ./gradlew assembleDebug --no-daemon
+      
+    - name: Upload APK
+      uses: actions/upload-artifact@v4
+      with:
+        name: NextDNSManager-debug
+        path: app/build/outputs/apk/debug/*.apk
+    
+    - name: Create Release
+      if: github.ref == 'refs/heads/main'
+      uses: softprops/action-gh-release@v1
+      with:
+        files: app/build/outputs/apk/debug/*.apk
+        tag_name: v1.0.0
+        release_name: NextDNS Manager v1.0.0
+        body: |
+          ## NextDNS Manager Android App
+          
+          🛡️ 基于NextDNS API的安卓管理应用
+          
+          ### 功能特性
+          - ✅ 12项安全设置（威胁情报、AI检测等）
+          - ✅ 隐私管理（拦截跟踪器等）
+          - ✅ 家长控制（服务过滤、内容分类）
+          - ✅ 黑白名单管理
+          - ✅ DNS日志开关
+          - ✅ 全中文界面
+        prerelease: false
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
